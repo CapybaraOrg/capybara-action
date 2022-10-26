@@ -1,0 +1,39 @@
+{
+  "name": "capybara-action",
+  "description": "Capybara GitHub Action",
+  "version": "0.0.0-development",
+  "license": "MIT",
+  "author": "Capybara Team",
+  "scripts": {
+    "build": "ncc build index.js --license licenses.txt",
+    "format": "prettier --write \"**/*.{js,jsx,json,md}\"",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "prepare": "husky install"
+  },
+  "dependencies": {
+    "@actions/core": "1.10.0",
+    "@actions/github": "5.1.1",
+    "@vercel/ncc": "0.34.0",
+    "axios": "1.1.3"
+  },
+  "devDependencies": {
+    "husky": "8.0.1",
+    "lint-staged": "13.0.3",
+    "prettier": "2.7.1"
+  },
+  "lint-staged": {
+    "*.{js,jsx,json,md}": "prettier --write"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CapybaraOrg/capybara-action.git"
+  },
+  "keywords": [
+    "carbon aware api",
+    "green software"
+  ],
+  "bugs": {
+    "url": "https://github.com/CapybaraOrg/capybara-action/issues"
+  },
+  "homepage": "https://github.com/CapybaraOrg/capybara-action#readme"
+}
