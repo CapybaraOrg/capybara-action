@@ -1,10 +1,31 @@
-name: 'Hello World'
-description: 'Greet someone and record the time'
+name: 'capybara-action'
+description: 'Fails the build if it is not triggered by capybara server. Then calls the server to calculate when is the greenest time to trigger workflow.'
 inputs:
-  who-to-greet:  # id of input
-    description: 'Who to greet'
+  clientId:
+    description: The client id of the repo
     required: true
-    default: 'World'
+  workflowId:
+    description: The ID of the workflow
+    required: true
+  repoName:
+    description: The name of the repository. The name is not case sensitive
+    required: true
+  ref:
+    description: The git reference for the workflow. The reference can be a branch or tag name
+    required: true
+  owner:
+    description: The account owner of the repository. The name is not case sensitive
+    required: true
+  durationInMinutes:
+    description: An approximate duration of the workflow run*. If not provided, defaults to 5 min
+    required: false
+  maximumDelayInSeconds:
+    description: How long after the schedule start of the run the pipeline can be triggered
+    required: true
+  location:
+    description: The location of the workflow runner
+    required: true
+
 outputs:
   time: # id of output
     description: 'The time we greeted you'
