@@ -45,6 +45,7 @@ Capybara makes use of the carbon-aware WebApi developed by Green Software Founda
 6. [Future improvements](#future-improvements)
    - [Reporting (Capybara dashboard)](#reporting)
    - [Location parameter automatically derived](#location)
+7. [Gotchas](#gotchas)
 
 ---
 
@@ -54,42 +55,69 @@ Capybara makes use of the carbon-aware WebApi developed by Green Software Founda
 
 ## Composition[](#composition)
 
-Capybara consists of:
+When we mention Capybara (not Capybara Action) we have in mind the tool as a whole. Capybara Action is what the user sees but underneath it calls Capybara backend.
 
-1. Capybara action (current repo)
-2. Capybara backend (link)
-3. Infra repo (link)
-4. Google cloud (link)
+Capybara tool consists of:
+
+1. **Capybara action** (current repo):
+   The action in itself is quite simple: it calls our Capybara server (Capybara backend) with the input and breaks cancels the pipeline run if it wasn't triggered by Capybara.
+2. **Capybara backend** (link) hosted on Google Cloud
 
 ---
 
 ## Usage[](#usage)
 
-Capybara Action should be added as a **first step in a workflow**. If the run is not triggered by Capybara i.e., it's not triggered at the 'green time', we should fail at the very beginning.
-If the workflow run is triggered by Capybara server, then the action step will be ignored.
+Capybara Action should be added as a **first step in a workflow**. If the run is not triggered by Capybara i.e., it's not triggered at the 'green time', run should be cancelled at the very start.
+If the workflow run is triggered by Capybara backend, then the action step will be ignored.
 
 ### Repository requirements[](#repo-requirements)
 
-- workflow-dispatch present in the client repo [workflow-dispatch event](https://docs.github.com/en/rest/actions/workflows#create-a-workflow-dispatch-event) since our server will use it to trigger the client workflow. See the [architecture](docs/architecture_diagram)
-- separate workflow for CI development and cyclical builds.
+1. [`workflow-dispatch`](https://docs.github.com/en/rest/actions/workflows#create-a-workflow-dispatch-event) present in the client repo since our server will use it to trigger the client workflow. See the [architecture](docs/architecture_diagram)
+   It must contain an input parameter `isCapybaraDispatch` which default to false:
+
+```
+name: Example Workflow
+
+on:
+  schedule:
+    - cron: '00 1 * * 1'  # At 01:00 on Mondays.
+  workflow_dispatch:
+    inputs:
+      isCapybaraDispatch:
+        description: System only property (ignore)
+        required: true
+        default: false
+```
+
+2. Generate a fine-grained personal access token for your repository. In the permissions section, for `Actions` and `Contents` select read and write access.
+   Then use the token value to register your repo to Capybara. You can use this template curl request:
+
+```
+curl -vvv -X POST -H "Content-Type: application/json" \
+-d '{"token": "github_pat_YOUR-TOKEN-HERE"}' \
+https://{CAPYBARA_URL}/v1/accounts
+```
+
+The result of this call needs to be saved as a secret in your repository. See an example for this in [capybara-demo](https://github.com/CapybaraOrg/capybara-demo)
 
 ### Inputs
 
 User needs to provide input that is related both to the information about the schedule and the repository itself.
 Schedule input is mostly what we need to make a request to carbon aware webapi. Repository information is needed for triggering the workflow with [workflow-dispatch event](https://docs.github.com/en/rest/actions/workflows#create-a-workflow-dispatch-event)
 
-Moreover, client id is needed to store the client in the Capybara database. (????)
+Moreover, client id is needed to store the client in the Capybara database.
 
-| Parameters              | Required | Type                        | Example values   | Definition                                                                        |
-| ----------------------- | -------- | --------------------------- | ---------------- | --------------------------------------------------------------------------------- |
-| `clientId`              | True     | Authentication(?) parameter | `land`           | The client id of the repo                                                         |
-| `workflowId`            | True     | Repo parameter              | `land`           | The ID of the workflow. You can also pass the workflow file name as a string      |
-| `repoName`              | True     | Repo parameter              | `train_journeys` | The name of the repository. The name is not case sensitive                        |
-| `ref`                   | True     | Repo parameter              | `train_journeys` | The git reference for the workflow. The reference can be a branch or tag name     |
-| `owner`                 | True     | Repo parameter              | `3`              | The account owner of the repository. The name is not case sensitive               |
-| `durationInMinutes`     | False    | Schedule parameter          | `train_journeys` | An approximate duration of the workflow run\*. If not provided, defaults to 5 min |
-| `maximumDelayInSeconds` | True     | Schedule parameter          | `train_journeys` | How long after the schedule start of the run the pipeline can be triggered\*\*    |
-| `location`              | True     | Schedule parameter          | `train_journeys` | The location of the workflow runner\*\*\*                                         |
+| Parameters              | Required | Type                        | Example values        | Definition                                                                                                |
+| ----------------------- | -------- | --------------------------- | --------------------- | --------------------------------------------------------------------------------------------------------- |
+| `capybaraUrl`           | True     | URL of the backend          | `https://{your-host}` | URL for Capybara backend (https://github.com/CapybaraOrg/capybara-backend). Use it with your own instance |
+| `clientId`              | True     | Authentication(?) parameter | `sdfkl232`            | The client id of the repo                                                                                 |
+| `workflowId`            | True     | Repo parameter              | `test.yml`            | The ID of the workflow. You can also pass the workflow file name as a string                              |
+| `repoName`              | True     | Repo parameter              | `capybara-demo`       | The name of the repository. The name is not case sensitive                                                |
+| `ref`                   | True     | Repo parameter              | `main`                | The git reference for the workflow. The reference can be a branch or tag name                             |
+| `owner`                 | True     | Repo parameter              | `JaneDoe`             | The account owner of the repository. The name is not case sensitive                                       |
+| `durationInMinutes`     | False    | Schedule parameter          | `20`                  | An approximate duration of the workflow run\*. If not provided, defaults to 5 min                         |
+| `maximumDelayInSeconds` | True     | Schedule parameter          | `28800` (8hrs)        | How long after the schedule start of the run the pipeline can be triggered\*\*                            |
+| `location`              | True     | Schedule parameter          | `uksouth`             | The location of the workflow runner\*\*\*                                                                 |
 
 \*If the provided duration differs significantly from the actual workflow run duration, the resulting bestTimeToRun output might not be accurate
 
@@ -113,6 +141,10 @@ The format is corresponding to AZURE availability zones.
 ---
 
 ## Development[](#development)
+
+### Change how the workflow is triggered
+
+if(eventName !=='workflow_dispatch' && !isCapybaraDispatch) {
 
 ### Setup[](#setup)
 
@@ -152,6 +184,17 @@ Location parameter automatically derived
 
 ### Repo input not required[](#location)
 
-Repo input is dynamically read from the client repo.
+Repo input is dynamically read from the client repo. Look into taking them from github context, e.g., github.ref_name.
+
+### Support multiple jobs in the workflow[](#location)
+
+As mentioned in the prerequsities, the action will best work if all the workflow is inside one job as that means we only have one runner and therefore one location where build is run.
+In the future, we could try to support multiple jobs. Right now, it is theoretically possible but the accuracy of the calculated time will be bad - greenest time at one location is most probably not greenest time at other location.
+
+## Gotchas[](#gotchas)
+
+### Since Capybara action is cancelling your current workflow run and running it at later time, it is not suitable for CI/CD workflows
+
+### For best results, put your workflow in one job as multiple steps. This way, we are sure that everything is run in same location.
 
 <!-- markdownlint-enable -->

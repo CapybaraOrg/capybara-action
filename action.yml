@@ -1,6 +1,12 @@
 name: 'capybara-action'
 description: 'Fails the build if it is not triggered by capybara server. Then calls the server to calculate when is the greenest time to trigger workflow.'
 inputs:
+  isCapybaraDispatch:
+    description: System property required by Capybara backend
+    required: true
+  capybaraUrl:
+    description: URL for Capybara backend
+    required: true
   clientId:
     description: The client id of the repo
     required: true
@@ -27,8 +33,8 @@ inputs:
     required: true
 
 outputs:
-  time: # id of output
-    description: 'The time we greeted you'
+  bestTimeToStart: # id of output
+    description: Best time to start the workflow run
 runs:
   using: 'node16'
   main: 'dist/index.js'
