@@ -37,6 +37,9 @@ const createCapybaraRun = async (
         maximumDelayInSeconds: maximumDelayInSeconds,
       },
     })
+
+    console.log(response)
+
     return response.scheduledTime
   } catch (error) {
     console.log(error)
