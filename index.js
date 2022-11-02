@@ -15,7 +15,7 @@ try {
     const capybaraUrl = core.getInput("capybaraUrl")
     const clientId = core.getInput("clientId")
     const workflowId = core.getInput("workflowId")
-    const repoName = core.getInput("workflowId")
+    const repoName = core.getInput("repoName")
     const ref = core.getInput("ref")
     const owner = core.getInput("owner")
     const durationInMinutes = core.getInput("durationInMinutes")
