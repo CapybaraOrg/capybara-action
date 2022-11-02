@@ -4,6 +4,9 @@ inputs:
   isCapybaraDispatch:
     description: System property required by Capybara backend
     required: true
+  github-token:
+    description: GITHUB_TOKEN secret
+    required: true
   capybaraUrl:
     description: URL for Capybara backend
     required: true
