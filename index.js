@@ -5,7 +5,8 @@ const axios = require("axios")
 try {
   const isCapybaraDispatch =
     github.context.payload.inputs &&
-    github.context.payload.inputs.isCapybaraDispatch
+    github.context.payload.inputs.isCapybaraDispatch &&
+    github.context.payload.inputs.isCapybaraDispatch !== "false"
       ? github.context.payload.inputs.isCapybaraDispatch
       : false
 
