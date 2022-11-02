@@ -38,7 +38,7 @@ const createCapybaraRun = async (
       },
     })
 
-    return response.data
+    return JSON.parse(response.data)
   } catch (error) {
     console.log(error)
   }
