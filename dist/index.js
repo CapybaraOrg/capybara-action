@@ -16809,7 +16809,7 @@ const createCapybaraRun = async (
       },
     })
 
-    return response.data.scheduledTime
+    return response.data
   } catch (error) {
     console.log(error)
   }
@@ -16856,7 +16856,7 @@ try {
     const maximumDelayInSeconds = core.getInput("maximumDelayInSeconds")
     const location = core.getInput("location")
 
-    const bestTimeToStart = createCapybaraRun(
+    const capybaraResponse = createCapybaraRun(
       capybaraUrl,
       clientId,
       location,
@@ -16867,7 +16867,7 @@ try {
       durationInMinutes,
       maximumDelayInSeconds
     )
-    core.setOutput("bestTimeToStart", bestTimeToStart)
+    core.setOutput("bestTimeToStart", capybaraResponse.scheduledTime)
 
     cancelGitHubRun(owner, repoName)
   } else {
