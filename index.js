@@ -38,9 +38,7 @@ const createCapybaraRun = async (
       },
     })
 
-    console.log(response)
-
-    return response.scheduledTime
+    return response.data.scheduledTime
   } catch (error) {
     console.log(error)
   }
@@ -61,7 +59,7 @@ const cancelGitHubRun = async (owner, repoName) => {
       `/repos/${owner}/${repoName}/actions/runs/${github.context.runId}/cancel`
     )
 
-    return response
+    return response.data
   } catch (error) {
     console.log(error)
   }
@@ -101,6 +99,8 @@ try {
     core.setOutput("bestTimeToStart", bestTimeToStart)
 
     cancelGitHubRun(owner, repoName)
+  } else {
+    core.setOutput("bestTimeToStart", "CANCELLED")
   }
 } catch (error) {
   core.setFailed(error.message)
