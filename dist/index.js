@@ -16825,7 +16825,7 @@ try {
         console.log(error)
       })
 
-    axios.create({
+    const githubInstance = axios.create({
       baseURL: "https://api.github.com/",
       timeout: 5000,
       headers: {
