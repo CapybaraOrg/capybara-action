@@ -1,4 +1,5 @@
 name: 'capybara-action'
+author: 'Capybara Team'
 description: 'Capybara is a GitHub Action used to automatically reschedule workflow runs depending on the most carbon efficient time.'
 inputs:
   isCapybaraDispatch:
@@ -41,3 +42,7 @@ outputs:
 runs:
   using: 'node16'
   main: 'dist/index.js'
+
+branding:
+  icon: 'award'
+  color: 'green'
