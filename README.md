@@ -20,7 +20,7 @@
 
 Capybara is a GitHub Action used to automatically reschedule workflow runs depending on the most carbon efficient time. Capybara also regularly reports on the carbon emissions saved.
 
-## Carbon-aware SDK
+## Carbon Aware SDK
 
 Capybara makes use of the carbon-aware WebApi developed by Green Software Foundation. For more information [see GSF repository](https://github.com/Green-Software-Foundation/carbon-aware-sdk)
 
@@ -60,8 +60,8 @@ When we mention Capybara (not Capybara Action) we have in mind the tool as a who
 Capybara tool consists of:
 
 1. **Capybara action** (current repo):
-   The action in itself is quite simple: it calls our Capybara server (Capybara backend) with the input and breaks cancels the pipeline run if it wasn't triggered by Capybara.
-2. **Capybara backend** (link) hosted on Google Cloud
+   The action in itself is quite simple: it calls our Capybara server (Capybara backend) with the input and cancels the workflow run if it wasn't triggered by Capybara backend.
+2. **Capybara backend** [CapybaraOrg/capybara-backend](https://github.com/CapybaraOrg/capybara-backend): it is a backend service which is handling the requests from the Capybara Action. You will have to host your own instance of this backend to use the action. Currently, it is using Google Cloud as a Cloud provider.
 
 ---
 
@@ -86,11 +86,11 @@ on:
       isCapybaraDispatch:
         description: System only property (ignore)
         required: true
-        default: false
+        default: 'false'
 ```
 
-2. Generate a fine-grained personal access token for your repository. In the permissions section, for `Actions` and `Contents` select read and write access.
-   Then use the token value to register your repo to Capybara. You can use this template curl request:
+2. Generate a [fine-grained personal access token](https://github.blog/changelog/2022-10-18-introducing-fine-grained-personal-access-tokens/) for your repository. In the `Permissions / Repository permissions` section, for `Actions` and `Contents` select `Read and write` access.
+   Then use the token value to register your repo to Capybara. You can use this template Curl request:
 
 ```
 curl -vvv -X POST -H "Content-Type: application/json" \
@@ -142,10 +142,6 @@ The format is corresponding to AZURE availability zones.
 
 ## Development[](#development)
 
-### Change how the workflow is triggered
-
-if(eventName !=='workflow_dispatch' && !isCapybaraDispatch) {
-
 ### Setup[](#setup)
 
 The project is using:
@@ -189,11 +185,13 @@ Repo input is dynamically read from the client repo. Look into taking them from 
 ### Support multiple jobs in the workflow[](#location)
 
 As mentioned in the prerequsities, the action will best work if all the workflow is inside one job as that means we only have one runner and therefore one location where build is run.
-In the future, we could try to support multiple jobs. Right now, it is theoretically possible but the accuracy of the calculated time will be bad - greenest time at one location is most probably not greenest time at other location.
+In the future, we could try to support multiple jobs. Right now, it is theoretically possible but the accuracy of the calculated time will be bad - most green time (the time where carbon emissions are lowest) at one location is most probably not best time at other location.
+
+### Authenticate with GitHub via GitHub Apps
 
 ## Gotchas[](#gotchas)
 
-### Since Capybara action is cancelling your current workflow run and running it at later time, it is not suitable for CI/CD workflows
+### Since Capybara action is cancelling your current workflow run and running it at later time, it is not suitable for CI/CD workflows where the workflow should be executed immediately.
 
 ### For best results, put your workflow in one job as multiple steps. This way, we are sure that everything is run in same location.
 

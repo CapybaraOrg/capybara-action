@@ -1,6 +1,7 @@
 const core = require("@actions/core")
 const github = require("@actions/github")
 const axios = require("axios")
+const moment = require("moment")
 
 const createCapybaraRun = async (
   capybaraUrl,
@@ -38,7 +39,10 @@ const createCapybaraRun = async (
       },
     })
 
-    core.setOutput("bestTimeToStart", response.data.scheduledTime)
+    core.setOutput(
+      "bestTimeToStart",
+      moment(response.data.scheduledTime).format("DD/MM/YYYY HH:mm:ss")
+    )
 
     return response.data
   } catch (error) {
