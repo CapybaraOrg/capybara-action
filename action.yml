@@ -1,5 +1,5 @@
 name: 'capybara-action'
-description: 'Fails the build if it is not triggered by capybara server. Then calls the server to calculate when is the greenest time to trigger workflow.'
+description: 'Capybara is a GitHub Action used to automatically reschedule workflow runs depending on the most carbon efficient time. Capybara also regularly reports on the carbon emissions saved.'
 inputs:
   isCapybaraDispatch:
     description: System property required by Capybara backend
