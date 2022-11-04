@@ -31,7 +31,7 @@ information [see GSF repository](https://github.com/Green-Software-Foundation/ca
 
 1. [Motivation](#motivation)
 2. [Composition](#composition)
-3. [Usage and Setup](#usage_and_setup)
+3. [Usage and Setup](#usage-and-setup)
    - [Inputs](#inputs)
    - [Outputs](#outputs)
    - [Example usage](#example-usage)
@@ -80,7 +80,7 @@ Capybara tool consists of:
 
 ---
 
-## Usage and Setup[](#usage_and_setup)
+## Usage and Setup[](#usage-and-setup)
 
 Your repository needs to have workflow(s) defined in `.github/workflows` directory (GitHub Actions requirement).
 
