@@ -22,8 +22,8 @@ Capybara is a GitHub Action used to automatically reschedule workflow runs depen
 
 ## Carbon Aware WebApi
 
-Capybara makes use of the Carbon Aware WebApi developed by Green Software Foundation. For more
-information [see GSF repository](https://github.com/Green-Software-Foundation/carbon-aware-sdk)
+Capybara makes use of the Carbon Aware WebApi developed by [Green Software Foundation](https://greensoftware.foundation/). For more
+information [see GSF repository](https://github.com/Green-Software-Foundation/carbon-aware-sdk).
 
 ---
 
@@ -45,20 +45,20 @@ information [see GSF repository](https://github.com/Green-Software-Foundation/ca
 
 ## Motivation[](#motivation)
 
-Every day developers around the world run workflows that are not necessarily part of a CI/CD development.
+Every day developers around the world run GitHub Actions workflows that are not necessarily part of a CI/CD development.
 Nightly security checks and builds, database backups - those workflows we usually schedule to run at the same time every
 day, week, or month.
 They have some time constraints but can be triggered after a period of time. For instance, a run that is usually
-triggered at midnight will be ok to run anywhere between 10 PM and 8 AM (when no one is working on the code). Because of
-this flexibility, routinely running workflows are an excellent area for utilizing carbon-aware computing.
+triggered at midnight will be ok to run anytime between 10 PM and 8 AM (when no one is working on the code). Because of
+this flexibility, routinely run workflows are an excellent area for utilising carbon-aware computing.
 
 Carbon-aware computing is the idea that you can reduce the carbon footprint of your application just by running things
 at different times or locations. The carbon intensity of energy varies due to the different proportions of renewable vs.
 fossil fuel energy sources.
-Our Capybara tool, when added to your workflow as a step (Cabybara Github Action), will cancel the run and trigger the
+Our Capybara tool, when added to your workflow as a step (Capybara GitHub Action), will cancel the run and trigger the
 workflow again when the energy is "least dirty" within specified time constraints. This is called time-shifting - shift
-your computation to the times when the grid uses the least fossil fuel energy.
-It is a simple approach to make your workflows greener without any cost.
+your computation to the times when the grid uses green energy.
+It is a simple approach to make your workflows greener without any additional cost.
 
 ---
 
@@ -67,10 +67,11 @@ It is a simple approach to make your workflows greener without any cost.
 When we mention Capybara (not Capybara Action) we have in mind the tool as a whole. Capybara Action is what the user
 sees but underneath it calls Capybara backend.
 
-![Alt text](docs/diagrams/Capybara%20flow.png)
+![Capybara flow diagram](docs/diagrams/Capybara%20flow.png)
+
 Capybara tool consists of:
 
-1. **Capybara action** (current repo):
+1. **Capybara action** (current repository):
    The action in itself is quite simple: it calls our Capybara backend with the input and cancels the workflow run if it
    wasn't triggered by Capybara backend.
 2. **Capybara backend** [CapybaraOrg/capybara-backend](https://github.com/CapybaraOrg/capybara-backend): it is a backend
@@ -106,7 +107,7 @@ on:
    select `Read and write` access.
 
    Then you will have to register your repository with Capybara backend. To do that, you will have to send an HTTP POST
-   request to the Capybara backend `/v1/accounts` REST endpoint with your the GitHub token you just created (future
+   request to the Capybara backend's `/v1/accounts` REST endpoint with the GitHub token you just created (future
    development includes supporting better authentication process).
 
    Example `cURL` request:
@@ -156,17 +157,15 @@ Schedule input is needed for the request to Carbon Aware WebApi. Repository info
 workflow
 with [workflow-dispatch event](https://docs.github.com/en/rest/actions/workflows#create-a-workflow-dispatch-event)
 
-Moreover, client id is needed to store the client in the Capybara's database.
-
 | Parameters              | Required | Type                          | Example values                           | Definition                                                                                                |
 | ----------------------- | -------- | ----------------------------- | ---------------------------------------- | --------------------------------------------------------------------------------------------------------- |
 | `isCapybaraDispatch`    | True     | System only property (ignore) | `${{inputs.isCapybaraDispatch}}`         | System property required by Capybara backend                                                              |
 | `capybaraUrl`           | True     | URL of the backend            | `https://{capybara-backend}`             | URL for Capybara backend (https://github.com/CapybaraOrg/capybara-backend). Use it with your own instance |
 | `clientId`              | True     | Authentication parameter      | `"0880cde5-bd95-4145-bd94-3ddbf8d22bfc"` | Client id returned by Capybara backend. Please, see the [Usage and Setup](#usage_and_setup)               |
-| `workflowId`            | True     | Repo parameter                | `test.yml`                               | The ID of the workflow. You can also pass the workflow file name as a string                              |
-| `repoName`              | True     | Repo parameter                | `capybara-demo`                          | The name of the repository. The name is not case sensitive                                                |
-| `ref`                   | True     | Repo parameter                | `main`                                   | The git reference for the workflow. The reference can be a branch or tag name                             |
-| `owner`                 | True     | Repo parameter                | `JaneDoe`                                | The account owner of the repository. The name is not case sensitive                                       |
+| `workflowId`            | True     | Repository parameter          | `test.yml`                               | The ID of the workflow. You can also pass the workflow file name as a string                              |
+| `repoName`              | True     | Repository parameter          | `capybara-demo`                          | The name of the repository. The name is not case sensitive                                                |
+| `ref`                   | True     | Repository parameter          | `main`                                   | The git reference for the workflow. The reference can be a branch or tag name                             |
+| `owner`                 | True     | Repository parameter          | `JaneDoe`                                | The account owner of the repository. The name is not case sensitive                                       |
 | `durationInMinutes`     | False    | Schedule parameter            | `20`                                     | An approximate duration of the workflow run[1]. If not provided, defaults to 5 min                        |
 | `maximumDelayInSeconds` | True     | Schedule parameter            | `28800`                                  | How long after the schedule start of the run the pipeline can be triggered[2]                             |
 | `location`              | True     | Schedule parameter            | `uksouth`                                | The location of the workflow runner that maps to Azure Cloud Regions[3]                                   |
@@ -176,12 +175,12 @@ resulting `bestTimeToStart` output might not be accurate.
 
 [2] Think of it as a window size within which we want the workflow to run. For example, if the run is scheduled with a
 cron job to always run at 10PM at night, what is the span in which it's still okay to run the workflow?
-Is it 10PM-3AM? 10PM-5AM? Or maybe even 10PM-8AM? In the last case `maximumDelayInSeconds` is equal to 28800
-since `windowSize` is 8 hours (8 hours in seconds is 28800).
+Is it 10PM-3AM? 10PM-5AM? Or maybe even 10PM-8AM? In the last case `maximumDelayInSeconds` is equal to `28800`
+since `windowSize` is `8` hours (`8` hours in seconds is `28800`).
 Mind that the run will finish a bit later - the equation of the latest possible end of the workflow run is:
 
 ```math
-LatesPossibleEndOfTheRun = bestTimeToStart + maximumDelayInSeconds + durationInMinutes
+Latest possible end of the run = bestTimeToStart + maximumDelayInSeconds + durationInMinutes
 ```
 
 [3] User provides the location where the computation is run, i.e., the location of the runner. This can be derived from
@@ -196,8 +195,7 @@ bit more complex and needs more research.
 
 ### Example usage
 
-See
-the [exemplary workflow in the demo repository](https://github.com/CapybaraOrg/capybara-demo/blob/main/.github/workflows/example-workflow.yml)
+See the [exemplary workflow in the demo repository](https://github.com/CapybaraOrg/capybara-demo/blob/main/.github/workflows/example-workflow.yml)
 
 ---
 
@@ -241,9 +239,9 @@ particular workflows (e.g., which workflows consume the most carbon).
 Location parameter is automatically derived so that users don't need to provide it. It would be especially useful
 if the workflow runs on a GitHub-hosted runner.
 
-### Repo input not required
+### Repository input not required
 
-Repo input could be dynamically read from the client repo. Research, if it could be done with github context,
+Repository input could be dynamically read from the client repository. Needs research if it could be done with GitHub context,
 e.g., `github.ref_name`.
 
 ### Support providing custom input through the workflow dispatch
