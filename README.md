@@ -32,6 +32,7 @@ Capybara makes use of the carbon-aware WebApi developed by Green Software Founda
 2. [Composition](#composition)
 3. [Usage](#usage)
    - [Repository requirements](#repo-requirements)
+   - [Setup](#setup)
    - [Inputs](#inputs)
    - [Outputs](#outputs)
    - [Example usage](#example-usage)
@@ -77,34 +78,49 @@ If the workflow run is triggered by Capybara backend, then the action step will 
 
 ### Repository requirements[](#repo-requirements)
 
-1. [`workflow-dispatch`](https://docs.github.com/en/rest/actions/workflows#create-a-workflow-dispatch-event)
-   present in the client repository since our backend needs it to trigger the client workflow.
-   It must contain an input parameter `isCapybaraDispatch` which defaults to false:
+1. To add the action to your repository workflow you need to add [`workflow_dispatch`](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#workflow_dispatch) event
+   since Capybara backend needs it to trigger the repository workflow.
+   It must contain an input parameter `isCapybaraDispatch` which defaults to `false` (this parameter is used internally only):
 
-```
-name: Example Workflow
-
+```yaml
 on:
-  schedule:
-    - cron: '00 1 * * 1'  # At 01:00 on Mondays.
   workflow_dispatch:
     inputs:
       isCapybaraDispatch:
         description: System only property (ignore)
         required: true
-        default: 'false'
+        default: "false"
 ```
 
-2. Generate a [fine-grained personal access token](https://github.blog/changelog/2022-10-18-introducing-fine-grained-personal-access-tokens/) for your repository. In the `Permissions / Repository permissions` section, for `Actions` and `Contents` select `Read and write` access.
-   Then use the token value to register your repository to Capybara. You can use this template Curl request:
+### Setup[](#setup)
 
-```
-curl -vvv -X POST -H "Content-Type: application/json" \
--d '{"token": "github_pat_YOUR-TOKEN-HERE"}' \
-https://{CAPYBARA_URL}/v1/accounts
+1. Generate a [fine-grained personal access token](https://github.blog/changelog/2022-10-18-introducing-fine-grained-personal-access-tokens/) for your repository. In the `Permissions / Repository permissions` section, for `Actions` and `Contents` select `Read and write` access.
+   You will have to register your repository with Capybara backend, to do that you will have to send a HTTP POST request to the Capybara backend `/v1/accounts` with your GitHub token (future development includes supporting better authentication process).
+   Example `cURL` request:
+
+```shell
+curl \
+  -X POST \
+  -H "Accept: application/json" \
+  -H "Content-Type: application/json" \
+  https://{CAPYBARA_URL}/v1/accounts \
+  -d '{"token": "github_pat_YOUR-TOKEN-HERE"}}'
 ```
 
-The result of this call needs to be saved as a secret in your repository. See an example for this in [capybara-demo](https://github.com/CapybaraOrg/capybara-demo)
+you will receive a response similar to this:
+
+```json
+{ "clientId": "0880cde5-bd95-4145-bd94-3ddbf8d22bfc" }
+```
+
+After that, you will have to [add](https://docs.github.com/en/actions/security-guides/encrypted-secrets#creating-encrypted-secrets-for-a-repository) following secrets to your repository where the Capybara GitHub Action is used:
+
+- CAPYBARA_CLIENT_ID
+  Copy the value of this secret from the `clientId` property of the `https://{CAPYBARA_URL}/v1/accounts` response earlier
+- CAPYBARA_URL
+  This will be the Capybara URL of the [CapybaraOrg/capybara-backend](https://github.com/CapybaraOrg/capybara-backend).
+
+For more information, please see [capybara-demo](https://github.com/CapybaraOrg/capybara-demo) example repository and [Capybara backend](https://github.com/CapybaraOrg/capybara-backend) repository.
 
 ### Inputs
 
@@ -199,7 +215,7 @@ In the future, we could try to support multiple jobs. Right now, it is theoretic
 
 Since Capybara action is cancelling your current workflow run and running it at later time, it is not suitable for CI/CD workflows where the workflow should be executed immediately.
 
-### All steps witin on job
+### All steps within on job
 
 For best results, put your workflow in one job but with multiple steps. This way, we are sure that everything is run in the same location.
 On github, all steps witin a job are run on the same runner which ensure they run on the same machine and following from that - the same location.
